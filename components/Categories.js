@@ -1,8 +1,23 @@
 import { View, Text, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CategoryCard from "./CategoryCard";
+import sanityClient, { urlFor } from "../sanity";
 
 const Categories = () => {
+	const [categories, setCategories] = useState([]);
+
+	useEffect(() => {
+		sanityClient
+			.fetch(
+				`
+				*[_type=="category"]
+	    `
+			)
+			.then((data) => {
+				setCategories(data);
+			});
+	}, []);
+
 	return (
 		<ScrollView
 			horizontal
@@ -12,23 +27,13 @@ const Categories = () => {
 				paddingTop: 10,
 			}}
 		>
-			{/* Category card */}
-			<CategoryCard
-				title="Grocery"
-				imgUrl="https://co-restaurants.roocdn.com/images/9c5609b55f14a205e3ebbd5ca2a8d1c17b835626/shortcut/grocery.png?width=334&height=176&fit=crop&bg-color=007e8a&auto=webp&format=png"
-			/>
-			<CategoryCard
-				title="Pizza"
-				imgUrl="https://co-restaurants.roocdn.com/images/9c5609b55f14a205e3ebbd5ca2a8d1c17b835626/shortcut/pizza.png?width=334&height=176&fit=crop&bg-color=00ccbc&auto=webp&format=png"
-			/>
-			<CategoryCard
-				title="Thai"
-				imgUrl="https://co-restaurants.roocdn.com/images/9c5609b55f14a205e3ebbd5ca2a8d1c17b835626/shortcut/thai.png?width=334&height=176&fit=crop&bg-color=440063&auto=webp&format=png"
-			/>
-			<CategoryCard
-				title="Thai"
-				imgUrl="https://co-restaurants.roocdn.com/images/9c5609b55f14a205e3ebbd5ca2a8d1c17b835626/shortcut/thai.png?width=334&height=176&fit=crop&bg-color=440063&auto=webp&format=png"
-			/>
+			{categories?.map((category) => (
+				<CategoryCard
+					title={category?.name}
+					key={category._id}
+					imgUrl={urlFor(category.image).width(200).url()}
+				/>
+			))}
 		</ScrollView>
 	);
 };
